@@ -2,6 +2,8 @@
 
 
     $(document).ready(function(){
+        window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+                              window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
         
         var idIntervalDroite;
         var idIntervalGauche;
@@ -872,7 +874,7 @@ var playStart = function(){
     },5000);
     setTimeout(function(){
       $('#phrase-samourai').fadeOut(2000);
-    },8000);
+    },9000);
 
   document.getElementById("play").addEventListener("click", function(event){
     if(event.composed){
