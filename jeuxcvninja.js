@@ -4,6 +4,7 @@
     $(document).ready(function(){
         window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
                               window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+        window.addEventListener = window.addEventListener || window.attachEvent;                      
         
         var idIntervalDroite;
         var idIntervalGauche;
@@ -61,10 +62,10 @@
                                      idIntervalCourir = setInterval(function(){                                   
                                   if(ninjaCourSansLancerDeShuriken && lancerShurikenSansCourir ===false){
                                           animationNinja = true;                                                                                                    
-                                          if(parseFloat(personnage.style.left)===-1006.6){
-                                                  personnage.style.left = '71.9px';
+                                          if(parseFloat(personnage.style.left)===-1008){
+                                                  personnage.style.left = '72px';
                                           }
-                                          var avance = parseFloat(personnage.style.left)-71.9+"px"; 
+                                          var avance = parseFloat(personnage.style.left)-72+"px"; 
                                           personnage.style.left = avance;                                                                             
                                   }                                          
                                       },40);
