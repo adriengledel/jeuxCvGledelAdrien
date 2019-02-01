@@ -86,6 +86,7 @@ body{
    #compteur-shuriken img{
        width:20px;
        transform: rotate(15deg);
+  
    }
   #bouton-explicatif img{
      height: 100%;

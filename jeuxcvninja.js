@@ -16,11 +16,11 @@
         var ninjaVivant= true;
         var idCourEnnemi;
         var idRequestShuriken;
-        var ennemi;
+        var ennemi= [];
         var ennemiMort = false;
         var lancerEnnemiGauche;
         var lancerEnnemiDroit;
-        var shuriken;
+        var shuriken = [];
         var creationImgShuriken;
         var z;
         var i;
@@ -38,6 +38,7 @@
         var indiceIdShuriken = 1;
         var indexShuriken=8  ;
         var finDeJeu = false;
+        var temps = 70;
         var x = 0;
         var y = 0;
         var lancerShurikenSansCourir = false;
@@ -63,7 +64,7 @@
                                   if(ninjaCourSansLancerDeShuriken && lancerShurikenSansCourir ===false){
                                           animationNinja = true;                                                                                                    
                                           if(parseFloat(personnage.style.left)===-1008){
-                                                  personnage.style.left = '72px';
+                                                  personnage.style.left = '-72px';
                                           }
                                           var avance = parseFloat(personnage.style.left)-72+"px"; 
                                           personnage.style.left = avance;                                                                             
@@ -75,6 +76,7 @@
             positionInitiale : function(){
                                   personnage.style.left = "0px";
                                   masque.style.width = "58px";
+                                  masque.style.left = "403px"
                               },                    
             positionCoup :     function(){
                                 
@@ -255,12 +257,12 @@
                                           
         }
 
-        var maitreSam = {
-              avance : function(){
+        var maitreSam = function(){
                       
                         idCourMaitreSam= setInterval(function(){
-                          if(ennemi.length===0 && animationNinja===false && ninjaCourSansLancerDeShuriken){
+                          if(ennemi.length===0  && ninjaCourSansLancerDeShuriken){
                             finDeJeu = true;
+                            ninja.positionInitiale();
                             clearInterval(idIntervalCourir);
                             if(parseFloat($("#sprite-sam").css('left'))===-89){
                               $("#sprite-sam").css({left:'-183px'});
@@ -279,9 +281,8 @@
                             }
                           }
                         },10);
-                      }        
-                }
-        
+                      }();        
+                        
 
         var EnnemiNinja = function(){
                           this.image = function(position,scale){
@@ -363,7 +364,7 @@
                                       }
                                       identifiantDInterpolation++;
                                   }
-                              },70);    
+                              },temps);    
                           };
 
                           this.mourir = function(){
@@ -617,9 +618,19 @@ var parcheminCv = function(){
 
 
     var creationDecor = function(){
-     
+      $('#arriereplan').css({ left:'0px'});
+      $('#arriereplanparallax').css({ left:'980px'});
+      $('#decor3eplan').css({left:'200px',top:'128px'});
+      $('#plan2').css({left:'0px'});
+      $('#plan2parallax').css({left:'1000px',top:'246px'});
+      $('#plan1').css({left:'0px',top:'451px'});
+      $('#plan1parallax').css({left:'996px',top:'451px'});
+
+    }
+
+    var parallax = function(){
+      setInterval(function(){
       if(masque.style.transform==="scaleX(1)" && animationNinja && ninjaCourSansLancerDeShuriken && personnage.style.left != "0px"){
- 
           var arriereplanparallax =parseFloat($('#arriereplanparallax').css('left'))-0.01+"px";
           var arriereplan = parseFloat($('#arriereplan').css('left'))-0.01+"px";
           $("#arriereplanparallax").css({left:arriereplanparallax});
@@ -645,11 +656,11 @@ var parcheminCv = function(){
           var plan1 = parseFloat($('#plan1').css('left'))-2+"px";
           $("#plan1parallax").css({left:plan1parallax});
           $("#plan1").css({left:plan1});
-          if(parseFloat($('#plan1parallax').css('left'))===0){
-            $("#plan1").css({left:'996px', top:'451px'});
+          if(parseFloat($('#plan1parallax').css('left'))<-998){
+            $("#plan1parallax").css({left:'992px', top:'451px'});
           }
-          if(parseFloat($('#plan1').css('left'))===0){
-            $("#plan1parallax").css({left:'996px', top:'451px'});
+          if(parseFloat($('#plan1').css('left'))<-998){
+            $("#plan1").css({left:'992px', top:'451px'});
           }
           if(parseFloat($('#plan1').css('left'))===0 || parseFloat($('#plan1').css('left'))===500){
             lancerEnnemiDroit = true;
@@ -683,23 +694,27 @@ var parcheminCv = function(){
 
         }
     
-        
+      },15); 
 
-}
+}();
 
 
 
-  var CreationTableauEnnemiEtShuriken = function(){
-        ennemi = [];
+
+$('#compteur-shuriken').children(8).css({left:200+'px'});
+var CreationTableauEnnemiEtShuriken = function(){
         for(var u = 0;u<8;u++){
           ennemi.push(new EnnemiNinja);
         }
-        shuriken = [];
+       
+        var i = 120;
         for(var u = 0;u<9;u++){
+          $('#compteur-shuriken').append('<img src="image/shuriken.png" alt="">');
+          document.getElementById('compteur-shuriken').children[u].style.left = i+"px";
             shuriken.push(new Shuriken);
+            i = i+20;
         }
-    
-  }();
+  };
 
   
 
@@ -719,8 +734,8 @@ var creationEnnemi = function(){
 
 
 
-var collision = function(){
-    setInterval(function(){
+var collision = function col(){
+   
             // collision Ennemi avec shuriken                
             if(checkCollision===2){
               if(parseFloat($("#masqueEnnemi"+indiceIdMasqueEnnemi).css('left'))<parseFloat($("#shuri"+indiceIdShuriken).css('left'))+parseFloat($("#shuri"+indiceIdShuriken).css('width')) && parseFloat($("#masqueEnnemi"+indiceIdMasqueEnnemi).css('left')) + parseFloat($("#masqueEnnemi"+indiceIdMasqueEnnemi).css('width'))-30>parseFloat($("#shuri"+indiceIdShuriken).css('left'))){
@@ -759,16 +774,15 @@ var collision = function(){
                    
                   }
                 }
-              }
-    
-                
-        
-                            },1);   
-            
-}();
-var maFonctionEvenement = function(){
+              }  
+                 
+};
+
+
+
+var evenementCollision = function(){
                                   // collision de l'ennemi avec le shuriken
-                                setInterval(function(){
+                                  setInterval(function(){
                                     if(checkCollision===1){
                                       clearInterval(idIntervalShuriken);
                                       checkCollision = 3;
@@ -778,6 +792,7 @@ var maFonctionEvenement = function(){
                                       checkShuriken = true;
                                       clearInterval(idCourEnnemi);
                                       ennemi[0].mourir();
+                                      temps = 50;
                                       indiceIdShuriken++;
                                     
                                         if(checkCollisionEnnemi){
@@ -795,7 +810,7 @@ var maFonctionEvenement = function(){
 
                            
                                       if(checkCollisionEnnemi){
-                                          if(animationNinja){                                            
+                                          if(animationNinja && !finDeJeu){                                            
                                               var masqueEnnemiFixe = parseFloat($('#masqueEnnemi'+indiceIdMasqueEnnemi).css('left'))-1+"px";
                                               $("#masqueEnnemi"+indiceIdMasqueEnnemi).css({left:masqueEnnemiFixe});
                                                 
@@ -811,11 +826,11 @@ var maFonctionEvenement = function(){
                                           clearInterval(idIntervalCourir);
                                           animationNinja = false;
                                           if($('#masqueEnnemi'+indiceIdMasqueEnnemi).css('transform') === "matrix(-1, 0, 0, 1, 0, 0)"){
-                                            console.log('yeah');
+
                                             ennemi[0].coupDeKatana("460px","431px","501px");
                                           }
                                           if($('#masqueEnnemi'+indiceIdMasqueEnnemi).css('transform') === "matrix(1, 0, 0, 1, 0, 0)"){
-                                            console.log('non');
+                     
                                             ennemi[0].coupDeKatana("300px","300px","300px");
                                           }
                                           console.log(ninja);
@@ -840,87 +855,117 @@ var maFonctionEvenement = function(){
                                       if(ennemi.length ===0){
                                         clearInterval(idIntervalCourir);
                                       }
-                                    },1);
-                                   
+                                  
+                                    },1);  
                                  
                               }();
 
 
-
-
-
-var creationShuriken = function(){
-                               
-                                
-                                  
-          }();
-
-
-
-
-
-
 var jouer;
+var rejouer;
 
 
+var explcationJeu = function(){
+  setTimeout(function(){
+    $('#bouton-explicatif').fadeOut(3000);
+  },2000);
+  $('#phrase').css({display:'none'});
+  setTimeout(function(){
+    $('#phrase').fadeIn(2000);
+  },5000);
+  setTimeout(function(){
+    $('#phrase-samourai').fadeOut(2000);
+  },9000);
+}
 
 var LancementJeu = function(){  
-  
-    setTimeout(function(){
-      $('#bouton-explicatif').fadeOut(3000);
-    },2000);
-    $('#phrase').css({display:'none'});
-    setTimeout(function(){
-      $('#phrase').fadeIn(2000);
-    },5000);
-    setTimeout(function(){
-      $('#phrase-samourai').fadeOut(2000);
-    },9000);
-
-  document.getElementById("play").addEventListener("click", function(event){
-    if(event.composed){
+  explcationJeu();
+    $('#play').css({width:'800px',cursor: 'pointer', marginLeft:'76px',display:'block'});
+  $("#play").click(function(event){
+      finDeJeu = false;
+      ninjaVivant = true;
       $('#play').css({display:'none'});
       var audioGong = document.getElementById('sonGong');
       audioGong.play();
-      jouer = true;       
-    }
+      jouer = true; 
+      init();      
+
   });
     
-}
+}();
 
-var reloaded = function(){
+/*var reloaded = function(){
+    rejouer = true;
+    jouer = false;
+    $('#gameover').css({display:'none'});
+    $('#reload').css({display:'none'});
+    checkCollisionNinja = 3;
+    ennemi.splice(0,8);
+    shuriken.splice(0,9);
+    console.log(shuriken);
+    $('#masqueEnnemi'+indiceIdMasqueEnnemi).remove();
     clearInterval(idIntervalNinjaMeurt);
     creationDecor();
-    creationEnnemi();
     ninja.positionInitiale();
+    LancementJeu();
+    CreationTableauEnnemiEtShuriken();
+    console.log(ennemi);
     document.body.addEventListener("keydown",clavierKeyDown);
     document.body.addEventListener("keyup",clavierKeyUp);
+    idIntervalPlay = function(){
+      if(rejouer){
+        collision();
+        evenementCollision();
+      creationEnnemi();    
+      parallax();
+      document.body.addEventListener("keydown",clavierKeyDown);
+      document.body.addEventListener("keyup",clavierKeyUp);
+      $('#compteur-ennemi').html(ennemi.length);
+      }
+      requestAnimationFrame(idIntervalPlay);
+  }
+    requestAnimationFrame(idIntervalPlay);
     
+}*/
 
-}
-/*$('#reload').click(function(){
-    reloaded();
- });*/ 
+
+$('#reload').click(function(){
+  clearInterval(idIntervalNinjaMeurt);
+  $('#gameover').css({display:'none'});
+  $('#reload').css({display:'none'});
+  checkCollisionNinja = 3;
+  $('#masqueEnnemi'+indiceIdMasqueEnnemi).remove();
+  $('#compteur-shuriken img').remove();
+  ennemi.splice(0,8);
+  shuriken.splice(0,9);
+  finDeJeu = false;
+  ninjaVivant = true;
+  jouer = true;
+  init();
+ }); 
 
 var idIntervalPlay;
 var init = function(){
-          LancementJeu();
-          maitreSam.avance();
-          
+          ninjaCourSansLancerDeShuriken = false;
+          lancerShurikenSansCourir =false;
+          ninja.positionInitiale();
+          CreationTableauEnnemiEtShuriken();
+          creationDecor();    
           idIntervalPlay = function(){
             if(jouer){
-                
-            creationEnnemi();
-            creationDecor();
-            document.body.addEventListener("keydown",clavierKeyDown);
-            document.body.addEventListener("keyup",clavierKeyUp);
-            $('#compteur-ennemi').html(ennemi.length);
+              collision();
+              /*evenementCollision();*/
+              creationEnnemi();    
+              /*parallax();*/
+              document.body.addEventListener("keydown",clavierKeyDown);
+              document.body.addEventListener("keyup",clavierKeyUp);
+              $('#compteur-ennemi').html(ennemi.length);
             }
             requestAnimationFrame(idIntervalPlay);
         }
           requestAnimationFrame(idIntervalPlay);  
                
-}();
+};
                                                  
                 
  
@@ -957,7 +1002,7 @@ function clavierKeyDown(event) {
             lancerShurikenSansCourir = true;
             clearInterval(idIntervalCourir);
             ninja.positionCoup();
-            shuriken[indexShuriken].lancer();
+            shuriken[0].lancer();
             ninjaCourSansLancerDeShuriken = false;        
             break;
             };
