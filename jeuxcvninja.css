@@ -1,0 +1,210 @@
+body{
+    background-color:black;
+    width: 100%;
+    margin: 0 auto;
+   }
+   img{
+     position: absolute;
+     width: 1000px;
+     top: 50px;
+   }
+
+   #contain{
+     width: 1000px;
+     height: 610px;
+     overflow: hidden;
+     position: relative;
+     border:solid;
+     background: linear-gradient(grey  , white);
+     margin:100px auto;
+     
+   }
+   #plan1{
+     top:453px;
+     
+   }
+   #plan2{
+
+   }
+   #masqueNinja{
+   position: absolute;
+   width: 58px;
+   height: 250px;
+   left: 403px;
+   top: 294px;
+   overflow: hidden;
+   }
+
+   #ninjasprite{
+     position: absolute;
+     width: 2267px;
+   }
+
+   #arriereplanparallax{
+     left:980px;
+   }
+   #decor3eplan{
+     left:200px;
+     top:128px;
+   }
+   #plan2parallax{
+     left:1000px;
+     top:246px;
+   }
+   #plan1parallax{
+     left:996px;
+     top:451px;
+   }
+   #play{
+     width:800px;
+     cursor: pointer;
+     margin-left:76px;
+   }
+   #gameover{
+     display:none;
+   }
+
+   #compteur-ennemi{
+     position: absolute;
+     left: 582px;
+     top: 3px;
+     width: 50px;
+     font-size: 35px;
+   }
+
+   #ennemi-restant{
+     width: 167px;
+     left: 413px;
+     top: 18px;
+
+
+   }
+   #compteur-shuriken{
+     position: absolute;
+     top:-46px;
+   }
+   #compteur-shuriken img{
+       width:20px;
+       transform: rotate(15deg);
+  
+   }
+  #bouton-explicatif img{
+     height: 100%;
+     top:0px;
+  }
+  #maitre img{
+  width: 500px;
+  top: 610px;
+  left: 474px;
+  animation-delay: 3s;
+  animation-duration: 5s;
+  animation-name: glissement;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  }
+  @keyframes glissement{
+    from{
+     top:610px;
+    }
+    to{
+     top:100px;
+    } 
+  }
+  #phrase img{
+   width: 380px;
+   left: 170px;
+   top: 0px;
+  }
+ 
+  #fond-phrase img{
+    height: 100%;
+    top:0px;
+  }
+  #play img{
+   width: 400px;
+   border-radius: 75px;
+   left: 315px;
+   top: 128px;
+   border:solid black;
+   animation-name: grossissement;
+   animation-duration: 500ms;
+   animation-direction: alternate;
+   animation-iteration-count: infinite;
+  }
+  @keyframes grossissement{
+    from{
+       transform:scale(1);
+    }
+    to{
+     transform:scale(1.1);
+    }
+  }
+  #masque-parchemin{
+   width: 181px;
+   height: 48px;
+   right: 0px;
+   position: absolute;
+   overflow: hidden;
+  }
+  #masque-parchemin img{
+    top:0px;
+    left:-818px;
+
+  }
+  #masque-sam{
+   position: absolute;
+   left: 1100px;
+   top: 354px;
+   width: 90px;
+   height: 194px;
+   overflow: hidden;
+  }
+  #sprite-sam{
+    width:270px;
+  }
+  #parchemin-final{
+    display: none;
+  }
+  #parchemin-final img{
+   width: 66px;
+   left: 452px;
+   top: 477px;
+   animation-name: grossissement-parchemin;
+   animation-duration: 500ms;
+   animation-direction: alternate;
+   animation-iteration-count: infinite;
+  }
+  @keyframes grossissement-parchemin{
+    from{
+       transform:scale(1) rotate(71deg);
+    }
+    to{
+     transform:scale(1.1) rotate(71deg);
+    }
+  }
+  #bulle-final img{
+   width: 96px;
+   left: 463px;
+   top: 300px;
+   
+  }
+  #bulle-final{
+    display: none;
+  }
+  #reload{
+    display: none;
+  }
+  #reload img{
+   width: 115px;
+   left: 460px;
+   top: 238px;
+   cursor: pointer;
+   animation-name: grossissement;
+   animation-duration: 500ms;
+   animation-direction: alternate;
+   animation-iteration-count: infinite;  
+  }
+
+  
+
+   
