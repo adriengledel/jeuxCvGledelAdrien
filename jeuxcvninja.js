@@ -689,7 +689,7 @@ var parcheminCv = function(){
 
 
 
-  var CreationEnnemiEtShuriken = function(){
+  var CreationTableauEnnemiEtShuriken = function(){
         ennemi = [];
         for(var u = 0;u<8;u++){
           ennemi.push(new EnnemiNinja);
@@ -864,7 +864,7 @@ var jouer;
 
 
 
-var playStart = function(){  
+var LancementJeu = function(){  
   
     setTimeout(function(){
       $('#bouton-explicatif').fadeOut(3000);
@@ -904,7 +904,7 @@ var reloaded = function(){
 
 var idIntervalPlay;
 var init = function(){
-          playStart();
+          LancementJeu();
           maitreSam.avance();
           
           idIntervalPlay = function(){
@@ -915,7 +915,6 @@ var init = function(){
             document.body.addEventListener("keydown",clavierKeyDown);
             document.body.addEventListener("keyup",clavierKeyUp);
             $('#compteur-ennemi').html(ennemi.length);
-            
             }
             requestAnimationFrame(idIntervalPlay);
         }
