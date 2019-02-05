@@ -1,87 +1,51 @@
 $(document).ready(function () {
-  window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
-    window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
-  window.addEventListener = window.addEventListener || window.attachEvent;
-  (function() {
-    var lastTime = 0;
-    var vendors = ['webkit', 'moz'];
-    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
-        window.cancelAnimationFrame =
-          window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
-    }
-
-    if (!window.requestAnimationFrame)
-        window.requestAnimationFrame = function(callback, element) {
-            var currTime = new Date().getTime();
-            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-            var id = window.setTimeout(function() { callback(currTime + timeToCall); },
-              timeToCall);
-            lastTime = currTime + timeToCall;
-            return id;
-        };
-
-    if (!window.cancelAnimationFrame)
-        window.cancelAnimationFrame = function(id) {
-            clearTimeout(id);
-        };
-}());
-
+  
   var idIntervalShuriken;
   var idIntervalCourir;
   var idIntervalNinjaMeurt;
   var idCourMaitreSam;
-  var ninjaVivant = true;
   var idCourEnnemi;
+  var idRequestPlay;
+  var ninjaVivant = true;
   var ennemi = [];
   var ennemiMort = false;
   var lancerEnnemiGauche;
   var lancerEnnemiDroit;
   var shuriken = [];
   var creationImgShuriken;
-  var z;
-  var i;
   var nbShuriken = 0;
   var nbCoup = 0;
-  var checkShuriken = false;
   var animationNinja = false;
-  var ninjaCourSansLancerDeShuriken;
   var checkCollision = 3;
   var checkCollisionEnnemi;
   var checkCollisionNinja = 3;
   var indiceIdMasqueEnnemi = 1;
   var indiceIdShuriken = 1;
-  var indexShuriken = 8;
   var finDeJeu = false;
+  var jouer;
   var temps = 70;
-  var x = 0;
-  var y = 0;
+  var ninjaCourSansLancerDeShuriken;
   var lancerShurikenSansCourir = false;
+  
   var sonShuriken = new Audio('sounds/shuriken.mp3');
- 
-
-  var imageElement = document.getElementById("spriteEnnemi");
-  var masqueElement = document.getElementById("masqueEnnemi");
-
-
-
+  
   var personnage = document.getElementById("ninjasprite");
   var masque = document.getElementById("masqueNinja");
   personnage.style.left = "0px";
   masque.style.transform = "scaleX(1)";
 
 
-
+  // creation de mon objet ninja
   var ninja = {
 
     direction: function () {
-      ninjaCourSansLancerDeShuriken = true;
+      ninjaCourSansLancerDeShuriken = true; // le ninja ne peut lancer lancer un shuriken et marcher en meme temps
       if (animationNinja === false) {
         idIntervalCourir = setInterval(function () {
           if (ninjaCourSansLancerDeShuriken && lancerShurikenSansCourir === false) {
-            animationNinja = true;
+            animationNinja = true; // animationNinja permet de lancer le parallax
             if (parseFloat(personnage.style.left) === -1008) {
-              personnage.style.left = '-72px';
+              personnage.style.left = '-72px'; // cette condition permet de boucler le sprite du ninja
             }
             var avance = parseFloat(personnage.style.left) - 72 + "px";
             personnage.style.left = avance;
@@ -93,7 +57,7 @@ $(document).ready(function () {
     positionInitiale: function () {
       personnage.style.left = "0px";
       masque.style.width = "58px";
-      masque.style.left = "403px"
+      masque.style.left = "403px";
     },
     positionCoup: function () {
 
@@ -102,7 +66,7 @@ $(document).ready(function () {
         clearInterval(idIntervalCourir);
         personnage.style.left = "-1072px";
         masque.style.width = "86px";
-        nbCoup = 1; //le ninja ne peut faire la figure pour lancer des shuriken qu'a partir du de la mort de l'ennemi ou du shuriken.
+        nbCoup = 1; //le ninja ne peut faire la figure pour lancer des shuriken qu'a partir de la mort de l'ennemi ou du shuriken en dehors du cadre.
       }
 
 
@@ -110,6 +74,7 @@ $(document).ready(function () {
     },
 
     meurt: function (position) {
+      // l'argument position est utile dans le cas ou le ninja meurt dans la position scaleX(1) ou scaleX(-1)
       var identifiantDInterpolation = 0;
       var ninjaMeurt = 0;
       idIntervalNinjaMeurt = setInterval(function () {
@@ -178,7 +143,7 @@ $(document).ready(function () {
           $('#masqueNinja').css('left', r);
 
           identifiantDInterpolation++;
-
+          // cette condition boucle l'animation de sang lorsque le ninja meurt
           if (($('#ninjasprite').css('left')) === '-2111px') {
             identifiantDInterpolation = 4;
             ninjaMeurt = 4;
@@ -191,15 +156,18 @@ $(document).ready(function () {
 
 
   var Shuriken = function () {
+    var x = 0;
+  var y = 0;
     this.lancer = function () {
       //lancer de shuriken a droite
       
-      if (masque.style.transform === "scaleX(1)") {
-        if (nbShuriken === 0) {
-          $('#compteur-shuriken img:last-child').remove();
-          shuriken.shift();
+      if (masque.style.transform === "scaleX(1)") { // si le ninja va dans la direction de droite
+        if (nbShuriken === 0) { // si le shuriken peut etre à nouveau lancer
+          sonShuriken.play(); 
+          $('#compteur-shuriken img:last-child').remove(); // suppression en haut a gauche du jeu de l'image du dernier shuriken
+          shuriken.shift(); // suppression d'un shuriken du tableau
+          checkCollision = 2;// permet de lancer la recherche de collision
           //création de l'image du shuriken
-          checkCollision = 2;
           creationImgShuriken = document.createElement("img");
           creationImgShuriken.src = "image/shuriken.png";
           creationImgShuriken.style.position = "absolute";
@@ -216,30 +184,26 @@ $(document).ready(function () {
             y = y - 12;
             if (parseFloat(creationImgShuriken.style.left) > 1000) {
               clearInterval(idIntervalShuriken);
-              nbShuriken = 0; //si le shuriken depasse 1920px nbShuriken est réinitialisé pour rentrer dans le while pour générer un shuriken
-              nbCoup = 0; //si le shuriken depasse 1920px nbCoup est réinitialisé pour rentrer dans le while pour générer le mouvement
-              $("#shuri" + indiceIdShuriken).remove();
-              checkShuriken = true;
-              indiceIdShuriken - 1;
+              nbShuriken = 0; //si le shuriken depasse 1000px nbShuriken est réinitialisé afin de pouvoir générer un shuriken
+              nbCoup = 0; //nbCoup est réinitialisé afin de pouvoir générer le mouvement
+              $("#shuri" + indiceIdShuriken).remove(); // suppression de l'image shuriken
+              indiceIdShuriken - 1; // si pas de collision avec un ennemi décrementation de l'Id de l'image afin de que le recherche de collision fonctionne
 
 
             }
 
           }, 20);
-          console.log(shuriken);
-          indexShuriken--;
-          console.log(indexShuriken);
-          nbShuriken = 1; //le ninja ne peut envoyer des shuriken qu'a partir du clear de l'interval de celui ci
+          nbShuriken = 1; //le ninja ne peut envoyer des shuriken qu'a partir de la condition ci-dessus ou de la collision avec l'ennemi
         }
       }
       //lancer de shuriken a gauche
-      if (masque.style.transform === "scaleX(-1)") {
-        if (nbShuriken === 0) {
-          $('#compteur-shuriken img:last-child').remove();
-          shuriken.shift();
-          var audio = document.getElementById('sonShuriken');
-          audio.play();
-          checkCollision = 2;
+      if (masque.style.transform === "scaleX(-1)") {  // si le ninja va dans la direction de gauche
+        if (nbShuriken === 0) { // si le shuriken peut etre à nouveau lancer
+          sonShuriken.play(); 
+          $('#compteur-shuriken img:last-child').remove();// suppression en haut a gauche du jeu de l'image du dernier shuriken
+          shuriken.shift();// suppression d'un shuriken du tableau
+          checkCollision = 2;// permet de lancer la recherche de collision
+          //création de l'image du shuriken
           creationImgShuriken = document.createElement("img");
           creationImgShuriken.src = "image/shuriken.png";
           creationImgShuriken.style.position = "absolute";
@@ -256,30 +220,28 @@ $(document).ready(function () {
             y = y + 12;
             if (parseFloat(creationImgShuriken.style.left) < -50) {
               clearInterval(idIntervalShuriken);
-              nbShuriken = 0; //si le shuriken depasse -0px nbShuriken est réinitialisé pour rentrer dans la boucle pour générer un shuriken
-              nbCoup = 0; //si le shuriken depasse -0px nbCoup est réinitialisé pour rentrer dans la boucle pour générer le mouvement
-              $("#shuri" + indiceIdShuriken).remove();
-              checkShuriken = true;
-              indiceIdShuriken - 1;
+              nbShuriken = 0; //si le shuriken depasse 1000px nbShuriken est réinitialisé afin de pouvoir générer un shuriken
+              nbCoup = 0; //nbCoup est réinitialisé afin de pouvoir générer le mouvement
+              $("#shuri" + indiceIdShuriken).remove();// suppression de l'image shuriken
+              indiceIdShuriken - 1;// si pas de collision avec un ennemi décrementation de l'Id de l'image afin de que le recherche de collision fonctionne
             }
 
           }, 20);
-          indexShuriken--;
-          nbShuriken = 1;
+          nbShuriken = 1; //le ninja ne peut envoyer des shuriken qu'a partir de la condition ci-dessus ou de la collision avec l'ennemi
         }
       }
     }
 
-  }
+  } // fin du constructor Shuriken
 
   var maitreSam = function () {
 
     idCourMaitreSam = setInterval(function () {
       if (ennemi.length === 0 && ninjaCourSansLancerDeShuriken) {
-        finDeJeu = true;
+        finDeJeu = true;// on a plus accès au touche clavier
         ninja.positionInitiale();
-        clearInterval(idIntervalCourir);
-        if (parseFloat($("#sprite-sam").css('left')) === -89) {
+        clearInterval(idIntervalCourir);// la course du ninja est stoppé
+        if (parseFloat($("#sprite-sam").css('left')) === -89) { //alternance de 2 images
           $("#sprite-sam").css({
             left: '-183px'
           });
@@ -288,7 +250,7 @@ $(document).ready(function () {
             left: '-89px'
           });
         }
-        var a = parseFloat($("#masque-sam").css('left')) - 1 + "px";
+        var a = parseFloat($("#masque-sam").css('left')) - 1 + "px"; // deplacement du masque
         $("#masque-sam").css({
           left: a
         });
@@ -503,6 +465,7 @@ $(document).ready(function () {
 
 
   var parcheminCv = function () {
+    // acces cv parchemin en haut a droite
     $('#masque-parchemin').mouseenter(function () {
 
       var identifiantDInterpolation = 0;
@@ -659,6 +622,7 @@ $(document).ready(function () {
 
   var parallax = function () {
     setInterval(function () {
+      //effet parallax du decor avec 4 plan defilant a une allure differente
       if (masque.style.transform === "scaleX(1)" && animationNinja && ninjaCourSansLancerDeShuriken && personnage.style.left != "0px") {
         var arriereplanparallax = parseFloat($('#arriereplanparallax').css('left')) - 0.01 + "px";
         var arriereplan = parseFloat($('#arriereplan').css('left')) - 0.01 + "px";
@@ -717,48 +681,12 @@ $(document).ready(function () {
           });
         }
         if (parseFloat($('#plan1').css('left')) === 0 || parseFloat($('#plan1').css('left')) === 500) {
-          lancerEnnemiDroit = true;
+          lancerEnnemiDroit = true;//apparition des ennemis de la droite (je fais apparaitre les ennemis par rapport à la distance parcouru du personnage)
         }
         if (parseFloat($('#plan1parallax').css('left')) === 0 || parseFloat($('#plan1parallax').css('left')) === 500) {
-          lancerEnnemiGauche = true;
+          lancerEnnemiGauche = true;// apparition des ennemis de la gauche
         }
 
-
-      }
-      if (masque.style.transform === "scaleX(-1)" && animationNinja && parseFloat($('#plan1').css('left')) > 0) {
-
-        var arriereplanparallax = parseFloat($('#arriereplanparallax').css('left')) + 0.01 + "px";
-        var arriereplan = parseFloat($('#arriereplan').css('left')) + 0.01 + "px";
-        $("#arriereplanparallax").css({
-          left: arriereplanparallax
-        });
-        $("#arriereplan").css({
-          left: arriereplan
-        });
-
-        var decor3eplan = parseFloat($('#decor3eplan').css('left')) + 0.08 + "px";
-        $("#decor3eplan").css({
-          left: decor3eplan
-        });
-
-
-        var plan2parallax = parseFloat($('#plan2parallax').css('left')) + 0.15 + "px";
-        var plan2 = parseFloat($('#plan2').css('left')) + 0.15 + "px";
-        $("#plan2parallax").css({
-          left: plan2parallax
-        });
-        $("#plan2").css({
-          left: plan2
-        });
-
-        var plan1parallax = parseFloat($('#plan1parallax').css('left')) + 1 + "px";
-        var plan1 = parseFloat($('#plan1').css('left')) + 1 + "px";
-        $("#plan1parallax").css({
-          left: plan1parallax
-        });
-        $("#plan1").css({
-          left: plan1
-        });
 
       }
 
@@ -769,20 +697,18 @@ $(document).ready(function () {
 
 
 
-  $('#compteur-shuriken').children(8).css({
-    left: 200 + 'px'
-  });
+  
   var CreationTableauEnnemiEtShuriken = function () {
     for (var u = 0; u < 8; u++) {
       ennemi.push(new EnnemiNinja);
     }
 
-    var i = 120;
+    var positionShuriken = 120;
     for (var u = 0; u < 9; u++) {
       $('#compteur-shuriken').append('<img src="image/shuriken.png" alt="">');
-      document.getElementById('compteur-shuriken').children[u].style.left = i + "px";
+      document.getElementById('compteur-shuriken').children[u].style.left = positionShuriken + "px"; //creation des shuriken du compteur en haut a gauche
       shuriken.push(new Shuriken);
-      i = i + 20;
+      positionShuriken = positionShuriken + 20;
     }
   };
 
@@ -804,26 +730,26 @@ $(document).ready(function () {
 
 
 
-  var collision = function col() {
+  var collision = function() {
 
     // collision Ennemi avec shuriken                
-    if (checkCollision === 2) {
+    if (checkCollision === 2) {// 2 est initialisé au moment du lancé de shuriken 
       if (parseFloat($("#masqueEnnemi" + indiceIdMasqueEnnemi).css('left')) < parseFloat($("#shuri" + indiceIdShuriken).css('left')) + parseFloat($("#shuri" + indiceIdShuriken).css('width')) && parseFloat($("#masqueEnnemi" + indiceIdMasqueEnnemi).css('left')) + parseFloat($("#masqueEnnemi" + indiceIdMasqueEnnemi).css('width')) - 30 > parseFloat($("#shuri" + indiceIdShuriken).css('left'))) {
 
         console.log('COLISION !!!');
-        checkCollision = 1;
+        checkCollision = 1;// permet de lancer l'évenement lié à la collision 
         checkCollisionEnnemi = true;
 
       }
     }
 
     //collision avec Ennemi venant de la droite
-    if ($('#masqueEnnemi' + indiceIdMasqueEnnemi).css('transform') === "matrix(-1, 0, 0, 1, 0, 0)") {
-      if (checkCollisionNinja === 3) {
+    if ($('#masqueEnnemi' + indiceIdMasqueEnnemi).css('transform') === "matrix(-1, 0, 0, 1, 0, 0)") {//non détecté sur les anciens navigateurs 
+      if (checkCollisionNinja === 3) { //au lancement de la partie la checkcollisionNinja est initialisé a 3 donc la recherche de collision est lancé
 
         if (parseFloat($("#masqueEnnemi" + indiceIdMasqueEnnemi).css('left')) < parseFloat($("#masqueNinja").css('left')) + (parseFloat($("#masqueNinja").css('width')) + 50) && (parseFloat($("#masqueEnnemi" + indiceIdMasqueEnnemi).css('left')) + 100) + parseFloat($("#masqueEnnemi" + indiceIdMasqueEnnemi).css('width')) - 30 > parseFloat($("#masqueNinja").css('left')) && !ennemiMort) {
           console.log('COLISSION !!!');
-          checkCollisionNinja = 1;
+          checkCollisionNinja = 1;// permet de lancer les evenements liés à cette collision
           ninjaVivant = false;
 
 
@@ -832,12 +758,13 @@ $(document).ready(function () {
       }
     }
     // collision avec Ennemi venant de la gauche
-    if ($('#masqueEnnemi' + indiceIdMasqueEnnemi).css('transform') === "matrix(1, 0, 0, 1, 0, 0)") {
-      if (checkCollisionNinja === 3) {
+    if ($('#masqueEnnemi' + indiceIdMasqueEnnemi).css('transform') === "matrix(1, 0, 0, 1, 0, 0)") {//non détecté sur les anciens navigateurs 
+      if (checkCollisionNinja === 3) {//au lancement de la partie la checkcollisionNinja est initialisé a 3 donc la recherche de collision est lancé
+
 
         if (parseFloat($("#masqueEnnemi" + indiceIdMasqueEnnemi).css('left')) < parseFloat($("#masqueNinja").css('left')) + (parseFloat($("#masqueNinja").css('width'))) && (parseFloat($("#masqueEnnemi" + indiceIdMasqueEnnemi).css('left')) + 100) + parseFloat($("#masqueEnnemi" + indiceIdMasqueEnnemi).css('width')) - 30 > parseFloat($("#masqueNinja").css('left')) && !ennemiMort) {
           console.log('COLISSION !!!');
-          checkCollisionNinja = 1;
+          checkCollisionNinja = 1;// permet de lancer les evenements liés à cette collision
           ninjaVivant = false;
 
 
@@ -854,25 +781,22 @@ $(document).ready(function () {
     // collision de l'ennemi avec le shuriken
     setInterval(function () {
       if (checkCollision === 1) {
-        clearInterval(idIntervalShuriken);
-        checkCollision = 3;
-
-        document.getElementById("shuri" + indiceIdShuriken).style.display = "none";
-
-        checkShuriken = true;
-        clearInterval(idCourEnnemi);
-        ennemi[0].mourir();
-        temps = 50;
-        indiceIdShuriken++;
+        checkCollision = 3;// permet d'arretet la recherche de collision
+        clearInterval(idIntervalShuriken);// arret du shuriken
+        document.getElementById("shuri" + indiceIdShuriken).style.display = "none";//suppression de l'image du shuriken
+        clearInterval(idCourEnnemi);//arret de la course de l'ennemi
+        ennemi[0].mourir();// lancement du sprite de la mort de l'ennemi
+        temps = 50;// augmentation de la vitesse des ennemis 2 et plus
+        indiceIdShuriken++; //  incrementation de l'Id du shuriken
 
         if (checkCollisionEnnemi) {
 
-          ennemi.shift();
+          ennemi.shift();// suppression d'un ennemi du tableau qui permet la mise a jour du nombre d'ennemi vivant
           setTimeout(function () {
             $("#masqueEnnemi" + indiceIdMasqueEnnemi).fadeOut();
-            indiceIdMasqueEnnemi++;
-            nbShuriken = 0;
-            nbCoup = 0;
+            indiceIdMasqueEnnemi++;//incrementation de l'Id de l'ennemi
+            nbShuriken = 0; //ennemi mort donc on peut a nouveau lancer un shuriken
+            nbCoup = 0; //ennemi mort donc on peut a nouveau faire le mouvement du lancer de shuriken
           }, 2000);
         }
       }
@@ -880,8 +804,8 @@ $(document).ready(function () {
 
 
       if (checkCollisionEnnemi) {
-        if (animationNinja && !finDeJeu) {
-          var masqueEnnemiFixe = parseFloat($('#masqueEnnemi' + indiceIdMasqueEnnemi).css('left')) - 1 + "px";
+        if (animationNinja && !finDeJeu) { // si le ninja avance le corps mort de l'ennemi se deplace avec cohérance en étant coordonné avec le plan1 du parallax
+          var masqueEnnemiFixe = parseFloat($('#masqueEnnemi' + indiceIdMasqueEnnemi).css('left')) - 2 + "px";
           $("#masqueEnnemi" + indiceIdMasqueEnnemi).css({
             left: masqueEnnemiFixe
           });
@@ -893,24 +817,23 @@ $(document).ready(function () {
 
       if (checkCollisionNinja === 1) {
 
-        checkCollisionNinja = 2;
-        clearInterval(idCourEnnemi);
-        clearInterval(idIntervalCourir);
-        animationNinja = false;
+        checkCollisionNinja = 2;//permet d'arreter l'evenement de la collision
+        clearInterval(idCourEnnemi);// stop de la course de l'ennemi
+        clearInterval(idIntervalCourir);// stop de la course du ninja
+        animationNinja = false; 
         if ($('#masqueEnnemi' + indiceIdMasqueEnnemi).css('transform') === "matrix(-1, 0, 0, 1, 0, 0)") {
 
           ennemi[0].coupDeKatana("460px", "431px", "501px");
         }
         if ($('#masqueEnnemi' + indiceIdMasqueEnnemi).css('transform') === "matrix(1, 0, 0, 1, 0, 0)") {
 
-          ennemi[0].coupDeKatana("300px", "300px", "300px");
+          ennemi[0].coupDeKatana("281px", "281px", "281px");
         }
-        console.log(ninja);
         setTimeout(function () {
-          if (masque.style.transform === "scaleX(1)") {
+          if (masque.style.transform === "scaleX(1)") { // si meurt en etant dirigé vers la droite
             ninja.meurt();
           }
-          if (masque.style.transform === "scaleX(-1)") {
+          if (masque.style.transform === "scaleX(-1)") { // si ninja meurt dirigé vers la gauche
             ninja.meurt("322px");
           }
         }, 400);
@@ -925,16 +848,12 @@ $(document).ready(function () {
       }
 
       if (ennemi.length === 0) {
-        clearInterval(idIntervalCourir);
+        clearInterval(idIntervalCourir); // si le nombre d'ennemi atteint 0 la course du ninja est arreté
       }
 
-    }, 1);
+    }, 15);
 
   }();
-
-
-  var jouer;
-  var rejouer;
 
 
   var explcationJeu = function () {
@@ -960,7 +879,7 @@ $(document).ready(function () {
       marginLeft: '76px',
       display: 'block'
     });
-    $("#play").click(function (event) {
+    $("#play").click(function(){
       finDeJeu = false;
       ninjaVivant = true;
       $('#play').css({
@@ -968,87 +887,53 @@ $(document).ready(function () {
       });
       var audioGong = document.getElementById('sonGong');
       audioGong.play();
-      jouer = true;
+      jouer = true;//permet de rentrer dans la condition de la fonction init()
       init();
 
     });
 
   }();
 
-  /*var reloaded = function(){
-      rejouer = true;
-      jouer = false;
-      $('#gameover').css({display:'none'});
-      $('#reload').css({display:'none'});
-      checkCollisionNinja = 3;
-      ennemi.splice(0,8);
-      shuriken.splice(0,9);
-      console.log(shuriken);
-      $('#masqueEnnemi'+indiceIdMasqueEnnemi).remove();
-      clearInterval(idIntervalNinjaMeurt);
-      creationDecor();
-      ninja.positionInitiale();
-      LancementJeu();
-      CreationTableauEnnemiEtShuriken();
-      console.log(ennemi);
-      document.body.addEventListener("keydown",clavierKeyDown);
-      document.body.addEventListener("keyup",clavierKeyUp);
-      idIntervalPlay = function(){
-        if(rejouer){
-          collision();
-          evenementCollision();
-        creationEnnemi();    
-        parallax();
-        document.body.addEventListener("keydown",clavierKeyDown);
-        document.body.addEventListener("keyup",clavierKeyUp);
-        $('#compteur-ennemi').html(ennemi.length);
-        }
-        requestAnimationFrame(idIntervalPlay);
-    }
-      requestAnimationFrame(idIntervalPlay);
-      
-  }*/
-
 
   $('#reload').click(function () {
-    clearInterval(idIntervalNinjaMeurt);
+    //fonction relance la partie sans passé par les explications de jeu ni par le bouton play
+    clearInterval(idIntervalNinjaMeurt);// stop de l'animation ninja meurt
     $('#gameover').css({
       display: 'none'
     });
     $('#reload').css({
       display: 'none'
     });
-    checkCollisionNinja = 3;
-    $('#masqueEnnemi' + indiceIdMasqueEnnemi).remove();
-    $('#compteur-shuriken img').remove();
-    ennemi.splice(0, 8);
-    shuriken.splice(0, 9);
+    checkCollisionNinja = 3;// reinitialisation de la collision
+    $('#masqueEnnemi' + indiceIdMasqueEnnemi).remove();// suppression de l'ennemi qui a tué le ninja
+    $('#compteur-shuriken img').remove();//suppression des images compteur de shuriken 
+    ennemi.splice(0, 8);//suppression du tableau ennemi afin d'etre réinitialiser avec le bon nombre d'index
+    shuriken.splice(0, 9);//idem
     finDeJeu = false;
-    ninjaVivant = true;
+    ninjaVivant = true;//permet de rentrer dans la condition des touches clavier
     jouer = true;
     init();
   });
 
-  var idIntervalPlay;
+ 
   var init = function () {
     ninjaCourSansLancerDeShuriken = false;
     lancerShurikenSansCourir = false;
     ninja.positionInitiale();
+    masque.style.transform = "scaleX(1)";
     CreationTableauEnnemiEtShuriken();
     creationDecor();
-    idIntervalPlay = function () {
+    idRequestPlay = setInterval(function () {
       if (jouer) {
         collision();
-        /*evenementCollision();*/
         creationEnnemi();
-        /*parallax();*/
-        document.body.addEventListener("keydown", clavierKeyDown);
-        document.body.addEventListener("keyup", clavierKeyUp);
+        window.addEventListener("keydown", clavierKeyDown,false);
+        window.addEventListener("keyup", clavierKeyUp,false);
         $('#compteur-ennemi').html(ennemi.length);
       }
-      requestAnimationFrame(idIntervalPlay);
-    }
-    requestAnimationFrame(idIntervalPlay);
+      
+    },10);
+    
 
   };
 
@@ -1063,27 +948,23 @@ $(document).ready(function () {
     if (ninjaVivant && finDeJeu === false) {
       switch (code) {
 
-        case 37:
+        case 37://fleche gauche
           masque.style.transform = "scaleX(-1)";
+          $('#masqueNinja').css({'-ms-transform':'scaleX(-1)'});//internet explorer 9
+          $('#masqueNinja').css({'-moz-transform':'scaleX(-1)'});//mozilla 5
           ninja.positionInitiale();
-          checkShuriken = true;
           break;
 
-        case 38:
-          maitreSam.avance();
-          break;
-
-        case 39:
+        case 39://fleche droite
           masque.style.transform = "scaleX(1)";
+          $('#masqueNinja').css({'-ms-transform':'scaleX(1)'});//internet explorer 9
+          $('#masqueNinja').css({'-moz-transform':'scaleX(1)'});//mozilla 5
+
           ninja.direction();
           animationNinja = true;
           break;
 
-        case 40:
-          break;
-
-        case 32:
-        sonShuriken.play(); 
+        case 32://espace
           animationNinja = false;
           lancerShurikenSansCourir = true;
           clearInterval(idIntervalCourir);
@@ -1102,31 +983,23 @@ $(document).ready(function () {
     if (ninjaVivant && finDeJeu === false) {
       switch (code) {
 
-        case 37:
+        case 37:// fleche gauche
           clearInterval(idIntervalCourir);
           ninja.positionInitiale();
           animationNinja = false;
           break;
 
-        case 38:
-          break;
-
-        case 39:
+        case 39://fleche droite
           ninja.positionInitiale();
           clearInterval(idIntervalCourir);
           animationNinja = false;
           break;
 
-        case 40:
-          break;
-
-        case 32:
+        case 32://espace
           ninja.positionInitiale();
           clearInterval(idIntervalCourir);
           lancerShurikenSansCourir = false;
-
-
-          break;
+           break;
       };
     }
 
